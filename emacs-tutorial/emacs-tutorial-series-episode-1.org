@@ -1,0 +1,69 @@
+#+TITLE: Emacs Tutorial Series - episode 1
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/emacs.jpg
+
+Getting started with emacs: the basics
+
+#+EXCERPT:
+
+If you haven't read [[./emacs-tutorial-series-episode-0.org][episode 0]] yet, it introduces you to emacs and gives you the general plan and objectives for this entire learning path. By the end of this episode, you should know how to use emacs for getting things done and doing productive work without getting frustrated.
+
+
+* Installation
+Installing emacs is simple.
+
+- Linux based operating system:
+#+BEGIN_SRC bash
+apt-get install emacs
+# => replace apt-get by whichever package manager you're using
+#+END_SRC
+- OSX/Window: go [[https://www.gnu.org/software/emacs/][here]] and follow the instruction.
+
+=Tips:= OSX: Even if emacs is preinstall, go get a recent version instead, that will make your life much better. As the Apple god decided you shouldn't replace anything under /usr/bin, the best solution I came with is to create an [[https://coolestguidesontheplanet.com/make-an-alias-in-bash-shell-in-os-x-terminal/][alias]] in your =bash_profile=
+
+* Configure things before getting started
+The default experience isn't as great as with the other text editors. To fix this, open up a terminal and type:
+#+BEGIN_SRC bash
+mkdir -p ~/.emacs.d/plugins/dep ~/.emacs.d/conf
+curl http://mickael.kerjean.me/assets/files/emacs.conf > ~/.emacs.d/init.el
+#+END_SRC
+
+This configuration is what I believe should be the default emacs configuration. If you just run the command above, you're ready to open up emacs:
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-1-1.png, size=1164x1116
+Nothing fancy yet but welcome to emacs!
+
+* Getting started
+Emacs requires to learn quite a lot of shortcut to navigate and actually do stuff, that's the hardest part, but there's no shortcut you can take to avoid this. Instead there's 3 well kept secrets:
+1) Don't go on some random tutorial available on the internet, go straight in the embedded tutorial! To do that, press this weird sequence of keyboard key: '=Control h=' in the same time. Then release all your keys and press '=t='
+2) Don't hesitate to go to the emacs embedded tutorial multiple times
+3) Practise again and again
+
+If you've completed the tutorial, well done, you're on your way to master emacs, go grab a beer and congratulate yourself!
+
+=Tips=: use and abuse of emacs autocompletion with the 'tab' key whenever you're searching for a file, switching buffer or looking up for a command
+
+* Learn how to learn emacs
+Whenever you want to do something you don't know about, finding information is key. As emacs predates google by 20 years it needed some way to lookup for information without internet.
+
+You can browse through emacs +manual+ bible with: '=C-h r=' or '=M-x info-emacs-manual='. This is how I navigate:
+- '=^=': go to the parent page. Type '=^=' as many times as you need to reach the home page
+- '=n=': go to the next page
+- '=p=': go to the previous page
+
+Looking for something specific? =M-x info-apropos= is your friend (if you use my configuration, there's even a shortcut for it: '=C-h C-s=')
+
+=Tips:= Yes there's quite a lot more shortcuts available, but those 3 are the minimum you need to navigate in the bible. If you want to see them all, ask the manual searching for 'docview'
+
+* What next?
+Some great resources:
+- [[http://emacs.sexy/img/How-to-Learn-Emacs-v2-Large.png][this visual guide]] to learning Emacs
+- [[http://emacsrocks.com][emacsrocks.com]] for video tutorial on different stuff which I found pretty well done
+- [[http://emacs.sexy/][emacs.sexy]] for more info on emacs and a more complete list of very usefull links
+
+At this point of the serie, you need to make a decision:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-1-2.png, size=530x596
+
+To keep going:
+- [[./emacs-tutorial-series-episode-2.org][episode 2]]: Emacs killer app: org-mode
+- [[./emacs-tutorial-series-episode-4.org][episode 4]]: Install plugins in emacs

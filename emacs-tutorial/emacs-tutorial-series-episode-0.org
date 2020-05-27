@@ -1,0 +1,32 @@
+#+TITLE: Emacs Tutorial Series - episode 0
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/emacs.jpg
+
+The learning path
+
+#+EXCERPT:
+
+* Introduction to emacs
+Who can better introduce emacs better than its original creator Richard Stallman?
+#+AMP_YOUTUBE: ZAnWjQQufgs, start=22
+
+* Emacs compared to the others
+In the text editor competition, Sublime and Atom are much more approachable but if we could compared a text editor to music, Sublime would be Rihanna whereas Emacs would be [Stravinsky](https://www.youtube.com/watch?v=RZkIAVGlfWk). Like music from Igor Stravinsky, I don't know anybody who started to appreciate it the first time (and of course it's all available in the public domain too).
+
+Powerfull beast can be complex to get start with, emacs is no exception and the learning curve feels steep when you're a first time user. Don't worry though, you don't have to use all the power emacs brings in and it's perfectly fine to use it only for the basics. It's not because the tool can do a whole lot that you need to use it all.
+
+* The learning path
+This learning path is what I would have like to read when I start using emacs, starting from the very beginning and slowly progress to more advanced topics.
+
+This is the program we will follow and the objectives we'll focus on for this tutorial series:
+- [[./emacs-tutorial-series-episode-1.org][episode 1]]: Making you productive using emacs only focusing on the basics
+- [[./emacs-tutorial-series-episode-2.org][episode 2]]: Introducing org mode, a life changing application that is a wonderful replacement to evernote, one note or any other broken system you might already use to keep notes
+- [[./emacs-tutorial-series-episode-3.org][episode 3]]: Lookup on features that comes by default with emacs
+- [[./emacs-tutorial-series-episode-4.org][episode 4]]: Install and manage your plugins efficiently without ever bloating your emacs configuration
+- [[./emacs-tutorial-series-episode-5.org][episode 5]]: Lookup on elisp and to more advanced features
+
+=Tips:=
+- you don't need to go beyond episode 1 if you're only interested in using emacs as you would use atom, notepad, sublime or any similar tool without making a lot of customization.
+
+* What now?
+jump straight to the [[./emacs-tutorial-series-episode-1.org][first episode]]

@@ -1,0 +1,290 @@
+#+TITLE: Emacs Tutorial Series - episode 2
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/emacs.jpg
+
+Getting started with org mode
+
+#+EXCERPT:
+
+* What is org mode about
+Org mode is to emacs what Angry bird was to Android before Pokemon came in: it's emacs killer app except that it's nowhere close to become obsolete anytime soon.
+
+In its simplest form Org mode is a note taking and task list management system for emacs. [[http://orgmode.org/][Their website]] gives a more complete definition:
+#+BEGIN_QUOTE
+Org mode is for keeping notes, maintaining TODO lists, planning projects, and authoring documents with a fast and effective plain-text system.
+#+END_QUOTE
+
+In fact, Org mode is so good that it even made at least 2 vi users migrate to emacs ([[https://www.youtube.com/watch?v%3DJWD1Fpdd4Pc][this guy]], and the other dude is me).
+
+But the thing is, why would you ever go with org mode considering all the alternatives?
+
+Org mode deals with all what you should expect from alternatives: todolist, checklist, tags, clocking, priorities and all the tralala.
+
+The tie breaker comes if you ever try to:
+- edit something on a computer where your note taking app isn't installed. You would have to be a masochist to do that but it's not a big deal with org mode as it uses a plain text system
+- export and publish properly your document in html, pdf, epub, markdown, ... You nailed it, with org mode, the sky is the limit. As a side note, this post was made on org mode and I even create my invoices for client work with org mode.
+- You know about [[http://jupyter.org/][python notebook]] and love it too? Then why should we limit ourselves to python? Org mode let you create your own programming notebook for any programming language you could think of.
+
+* Getting started
+Before starting with org mode, I invite you to use my configuration which fix some weird org mode stuff that comes by default and will make your first experience with org mode more pleasant. If you're using the emacs configuration I provided in the [[./emacs-tutorial-series-episode-1.org][first episode]], you just have to execute the following command:
+#+BEGIN_SRC bash
+curl -X GET http://mickael.kerjean.me/assets/files/org.el > ~/.emacs.d/conf/org.el
+#+END_SRC
+
+I now invite you to download and open [[http://mickael.kerjean.me/assets/files/org-mode-tutorial.org][this org mode document]] that will make it easy for you to try out org mode in the same time as you read this post.
+
+=Tips:= If you're not using my default configuration, you can still copy and paste the org mode configuration I provided above in your emacs config. Yes I know, some people would say, don't copy and paste stuff you don't understand, it's evil! I generally do agree with this, however it seems you're here to know more about org mode and you need to answer this question with honesty: Would you prefer suffer to try out org mode or get a working and pleasant first experience? I believe it's better to know about org mode capabilities before so that you can make informed decisions on how to configure it properly after.
+
+* Note taking
+That's the central feature org mode was build around.
+
+** Markup Language
+If you're already familiar with Markdown, org mode has pretty much the same value proposition as it was build with the same root idea: make your document easy to read in plain text.
+
+Here is a comparative table between org mode and the markdown syntax:
+#+BEGIN_EXAMPLE
+|----------+----------------------+-------------------------------------|
+| What     | Markdown             | Org mode                            |
+|----------+----------------------+-------------------------------------|
+| Header 1 | #                    | *                                   |
+| Header 2 | #                    | **                                  |
+| Header n | #(..n)               | *(..n)                              |
+| List     | -                    | same                                |
+| Code     | ```language code ``` | #+BEGIN_SRC language code #+END_SRC |
+| quote    | > quote              | #+BEGIN_QUOTE quote #+END_QUOTE     |
+| Table    |                      | same                                |
+| link     | [label](link)        | [[link][label]]                     |
+| image    | ![alt text](link)    | [[file:path]]                       |
+|----------+----------------------+-------------------------------------|
+#+END_EXAMPLE
+
+At the end of the day, the only major difference with Markdown is good luck to find an editor which has all the features org mode offers to edit a markdown document. If you've found one, let me know I want to try it!
+
+=Tips:=
+- github and gitlab both support readme.org at the root of your repository and they will display in the exact same way.
+- At this time, if you think org mode syntax is weirder than Markdown it's probably a cognitive bias as you're not familiar with it yet.
+
+** Folding elements
+Folding let you see and edit a very large document only focusing on the specific part you're currently interested:
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-1.gif, size=720x500
+
+#+BEGIN_SRC
+> 'tab' in a headline/list toggle its visility
+> 'shift-tab' to fold/unfold everything
+#+END_SRC
+
+Try it by yourself and see how it behaves
+
+** Move things around
+Try everything in the post using the document I gave you [[mickael.kerjean.me/assets/files/2017-03-20-org-mode-tutorial.org][above]], you'll see it feels natural to move things around. Press the meta key with any arrow to move something in any direction you want:
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-2.gif, size=720x500
+
+|------------+----------+---------------------------------------+-----------------|
+| Keybinding | Context  | Effect                                | emacs function  |
+|------------+----------+---------------------------------------+-----------------|
+| M-top      | headline | Move a headline up                    | org-metaup      |
+|            | table    | Move the current row up               |                 |
+|            | list     | Move the list item up                 |                 |
+|------------+----------+---------------------------------------+-----------------|
+| M-down     | headline | Move a headline down                  | org-metadown    |
+|            | table    | Move the current row down             |                 |
+|            | list     | Move the list item down               |                 |
+|------------+----------+---------------------------------------+-----------------|
+| M-right    | headline | update headline level                 | org-metaright   |
+|            | table    | Move table column left                |                 |
+|            | list     | update nested list                    |                 |
+|------------+----------+---------------------------------------+-----------------|
+| M-left     | headline | Lower headline level                  | org-metaleft    |
+|            | table    | Move table column left                |                 |
+|            | list     | update a nested list                  |                 |
+|------------+----------+---------------------------------------+-----------------|
+| C-c C-l    | anywhere | Create a link                         | org-insert-link |
+|------------+----------+---------------------------------------+----------------- |
+| C-c b      | anywhere | switch to a different org mode buffer | org-switchb     |
+|------------+----------+---------------------------------------+-----------------|
+
+=Tips:= As you see for the last 2 commands, from now on pretty much all org mode non trivial things will have the 'C-c' prefix. The prefix is the only thing you need to remind as the suffix usually makes some sense: l for links and b for buffer.
+
+** Tables
+Another great feature from org mode is the ablity to create tables in a fairly simple way:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-3.gif, size=720x500
+
+#+BEGIN_SRC
+> Start by creating the headline by typing
+|test|test
+> Press tab an tada:
+| test | test |
+| _    |      |
+> Keep pressing tab to move to the next field and shift-tab to move to the previous field
+| test | test |
+|      | _    |
+> Everytime you press tab, the tab is automatically adjust to look great!
+#+END_SRC
+
+But that's not all, you can also use a table as you would use excel with formulas as you would expect from a spreadsheet.
+
+=Tips:= To get to know more about this feature, refer to the manual and practice on the provided [[mickael.kerjean.me/assets/files/2017-03-20-org-mode-tutorial.org][org document example]].
+
+* Manage your todo list
+** create/update a todo
+Org mode makes it easy to manage todo list. Essentially it takes 2 different forms:
+- a headline with a TODO keyword at the beginning like this:
+#+BEGIN_SRC
+  ​* TODO create report
+#+END_SRC
+- checklists: A task can sometimes be split into smaller list of things that needs to be done:
+#+BEGIN_SRC
+  ​* TODO create report [/]
+  ​- [ ] ask for access to x machine
+  ​- [ ] find the reporting script
+  ​- [ ] run the reporting script
+  ​- [ ] send report to stakeholders
+#+END_SRC
+if you press C-c C-c in one of those checkbox, it will be mark as complete and the todo headline will be updated to reflect upon your progress, pretty cool!
+
+To update the status of your todo, type 'C-c C-t' while your cursor is on a headline, try by yourself and see how cool it is.
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-4.gif, size=720x497
+
+=Tips:=
+- Search todo or checklist in the emacs bible to get way more information
+- =[/]= will display the ratio of task completed whereas =[%]= will give you a percentage
+
+** Capture and refile
+Capture let you easily create a headline without losing much of the current context.
+Wanna try? Press 'C-c c' from anywhere. You should be prompt to select between:
+- a 'todo' template (select with t)
+- a 'doing' template (d)
+
+I usually go with the todo template when I need to add a new task and with the doing template for everything else (coffee break, meal time, or anything else)
+
+When you're done filling the template: 'C-c C-c' to save it. If you save it, the newly created capture will be push in the ~/.emacs.d/backlog.org document
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-5.gif, size=720x500
+
+Once I have a few things store in the backlog, I just lookup for task with: 'C-c a m BACKLOG', mark tasks with the 'm' key and I push them wherever I want with 'B r'
+
+
+=Tips:=
+- Search capture or refile in the emacs bible to get way more information than here
+- Use and abuse of the tab key to autocomplete the location where you want to refill
+
+** Archiving
+To archive an entry 'C-c C-x C-a'
+With my config, they're all getting push in: ~/.emacs.d/archive.org
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-2-6.gif, size=720x500
+
+=Tips:= Search archiving in the emacs bible to get way more information than here.
+
+* Agenda
+To add something in your agenda, you need to schedule a task first. To do this, simply type: 'C-c C-s' from your org document. From there, a calendar will appear and you can type/click any date you want. Org mode is very flexible on how you can pick a date as you can go with wed for next wednesday, type just a day, ...
+
+The newly scheduled task will appear in the agenda when you type: 'C-c a a'. Note that there's many view available for the agenda to display. Typing 'C-c a' simply open a menu that let you choose from some predefined views.
+
+=Tips:= Search agenda in the emacs bible to get way more information
+
+* Export and Publishing
+Now that you have a document written in org mode, you can export it in a variety of format.
+|-------------+------------------------------------------------------|
+| Short cut   | effect                                               |
+|-------------+------------------------------------------------------|
+| C-c C-e     | display the export menu                              |
+| C-c C-e h h | export the document in html                          |
+| C-c C-e l p | export in pdf (you need to have latex install first) |
+|-------------+------------------------------------------------------|
+
+Quick example to export your document in html and display it:
+#+BEGIN_SRC
+C-c C-e h o => export current document to html and open it in your browser
+;; or open it with eww if you want to:
+M-x eww-open-file /path/to/your/file
+#+END_SRC
+
+
+Emacs has builtin support for markdown, odt, pdf, tex, iCalendar, plain text but it can be extend with packages that will let you use: [[https://github.com/syohex/org-epub][epub]], [[https://github.com/tomalexander/orgmode-mediawiki][mediawiki]], [[https://github.com/kawabata/ox-pandoc][pandoc]], [[https://github.com/masayuko/ox-rst][rst]], [[https://github.com/stig/ox-jira.el][jira]], [[https://github.com/yjwen/org-reveal][reveal]] and many more.
+
+If you're not happy with the existing backend, you won't be stuck. For example, this post was created using org mode with the jekyll exporter I created. Another cool example is I send my invoices to my clients using a custom exporter for org mode that basically produce a pdf from an org mode table, pretty neat!
+
+=Tips:= Search export or publishing in your emacs manual to get the full picture
+
+* Encryption
+With org mode, you can encrypt:
+1) a headline: tag it with the 'crypt' keyword. To create a tag, press: 'C-c C-c' while you're over a headline. To decrypt it, type: 'C-c d' or 'M-x org-decrypt-entry'. You don't need to worry about anything as encryption will happen everytime you save your buffer to the disk.
+2) the whole document: append the filename with '.gpg' and add this line at the top:
+#+BEGIN_SRC
+# -*- epa-file-encrypt-to: ("email@domain.com") -*-
+#+END_SRC
+
+Give it a try in the org document I gave you. You'll unlock a great gem if you find the passphrase which is the answer to this sensitive question:
+#+BEGIN_QUOTE
+What is the answer to life the universe and everything?
+#+END_QUOTE
+
+=Tips:=:
+- With the configuration I gave you at the beginning of this post, you'll only get an idiot proof encryption mechanism that you can easily bruteforce. However it's enough for my needs and I didn't need/want to go beyond that
+- On OSX, you need to install gpgtools:
+#+BEGIN_SRC bash
+brew install Caskroom/cask/gpgtools
+#+END_SRC
+
+* Other
+Org mode can also make it easy to:
+- [[http://orgmode.org/worg/org-contrib/babel/][execute code]]
+- [[http://orgmode.org/worg/org-contrib/babel/intro.html#orgheadline10][create diagrams]]
+- [[http://plantuml.com/emacs][create uml diagrams]]:
+
+You can also take a look to those great articles:
+- [[http://doc.norang.ca/org-mode.html][a great article on org mode]]
+- [[http://orgmode.org/manual/][org mode manual]]
+- [[http://ehneilsen.net/notebook/orgExamples/org-examples.html][Emacs org-mode examples and cookbook]]
+
+
+This blog is also manage from org mode. The workflow looks like this:
+1) create a post as a org document
+2) export the post in the jekyll format with the [[https://github.com/mickael-kerjean/ox-jekyll][ox-jekyll]] plugin
+3) stage/commit/push from the place where the actual jekyll website is located
+4) gitlab ci is running, build the website as static pages and publish it as gitlab pages
+
+That's it.
+#+BEGIN_COMMENT
+To install the ox-jekyll plugin:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins && cd ~/.emacs.d/plugins/
+git clone https://github.com/mickael-kerjean/ox-jekyll
+cat > ~/.emacs.d/conf/jekyll.el <<EOF
+;; begin(ox-jekyll)
+(add-to-list 'load-path "~/.emacs.d/plugins/ox-jekyll")
+(eval-after-load "org" '(require 'ox-jekyll))
+;; end(ox-jekyll)
+EOF
+
+cat > ~/.emacs.d/conf/org-publish.el <<EOF
+(setq org-publish-project-alist
+           '(("blog"
+               :base-directory "~/.emacs.d/files/post/"
+               :base-extension "org"
+               :publishing-directory "~/Documents/projects/mickael-kerjean-me/_posts/"
+               :publishing-function org-md-publish-to-jekyll)))
+EOF
+#+END_SRC
+#+END_COMMENT
+
+* Org mode major problem compared to other solutions
+Because you love org mode and emacs doesn't mean everyone is willing to give it a try.
+
+To fix that the org mode community has different solutions:
+1) [[https://github.com/org-trello/org-trello][org trello]] is a mode to synchronise your todos with trello. Trello even pass the mum can use it test.
+2) some mobile client are also available for mobile: It's called [[https://play.google.com/store/apps/details?id%3Dcom.matburt.mobileorg&hl%3Den][mobileOrg]] on ios, [[https://play.google.com/store/apps/details?id%3Dcom.orgzly&hl%3Den][orgzly]] on Android. I tried the mobileorg client but it has failed the mum test :/
+
+During my research I also found out about [[http://orgmode.org/worg/org-contrib/gsoc2012/student-projects/org-sync/tutorial/][org sync]] which is supposed to synchronize online bugtrackers with your org documents but I haven't test it yet.
+
+* Conclusion
+Org mode offers quite a lot of cool stuff out of the box. It has literally replace all the other note taking application I was using but to say the truth, we have only cover a small part of what org mode can do.
+
+Because we can never insist too much on the importance of emacs bible, you know where to go to know more about org mode. As you'll see there's some major features we haven't covered at all like: clocking, priorities and a lot I haven't ready about yet.
+
+
+In the [[./emacs-tutorial-series-episode-3.org][next episode]], we'll look at a few built in emacs features which might not have the coolish effect org mode has but are still quite usefull.

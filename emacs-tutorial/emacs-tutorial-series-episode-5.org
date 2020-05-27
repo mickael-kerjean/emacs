@@ -1,0 +1,221 @@
+#+TITLE: Emacs Tutorial Series - episode 5
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/emacs.jpg
+
+Deep dive into emacs: let's unleash the power
+
+#+EXCERPT:
+
+As a formality, we assume you're already productive using emacs (how else would you land here if you weren't?). If it's not the case, go back to the [[./emacs-tutorial-series-episode-0.org][episode 0]] of this tutorial series.
+
+Mastering emacs isn't a task, it's journey. By the end of this post you should get a feel of emacs real power as a hackable interactive environment for programming and be able to hack your way into it.
+
+To start on your journey, you first need to get some understanding on the philosohpy of emacs and learn how to learn emacs. Seems obvious but it's wasn't easy for me to know how to do stuff on emacs without constantly googling stuff.
+
+* Apis
+** Surface Limitation
+Whenever we want to interact with a system, we usually do so by using some apis. If you build those apis, it boils down to create the code that will allow third party developers to interact with your system. Even if you work very hard to make those apis as flexible as possible, there will always be some sort of surface limitation.
+
+The surface limitation of the api is actually a very big deal when you think about it as it defines the limits of what you can achieve and you won't be able to go beyond that. You can see this limit as:
+- a good thing: poor code won't break your entire app
+- a bad thing: as you don't have full control over how things behave
+
+At the end of the day it's a design choice and emacs decided to give you the power to do anything you want.
+
+** Code is the emacs api
+At first I didn't realize how powerfull it can be. I mean what the hell means: the code is the api ....
+It means, you don't have to use a separate api that was built for the sole purpose of creating plugins as you can interactively:
+- browse emacs code
+- add new things directly in the code
+- update or replace anything you'd want (think about this twice, update or replace anything you'd want, that's pretty badass)
+
+All of that without having to recompile anything and the neat part is emacs documentation is being update in real time while you do those changes ([[https://emacswiki.org/emacs/SelfDocumentation][see emacs as a self documenting editor)]]
+
+You got the power and that's emacs true power:
+#+AMP_YOUTUBE: VauzhTAuoFw, start=21
+
+
+* Get your information
+** Emacs +manual+ bible
+- emacs bible: '=C-h r=' (info-emacs-manual). To navigate, type '=^=' to go back in the navigation tree, '=n=' and '=p=' for next and previous page
+- emacs help: '=C-h ?=' to actually find what you are looking for
+
+Looking for something specific, you can also search for something in the manual with the 'info-apropos' command or simply use '=C-h C-s=' (if you use the configuration we setup on [[./emacs-tutorial-series-episode-1.org][episode 1]]).
+** Lookup things
+*** M-x describe-xxxx
+When you need to find a function or something related to Emacs, there's a bunch of commands available with the 'describe-' prefix.
+
+Let's start with the describe-function:
+#+BEGIN_SRC
+M-x describe-function
+org-mode
+#+END_SRC
+You should see an interactive documentation where you can browse the code, looking at function definitions and documentation directly within emacs. Pretty cool.
+If you're interested in hacking your way down to the actual code, You can execute code by using the 'C-x C-e' key but you can't write directly into emacs core code without having to recompile everything. Don't worry thought, it's still possible to build new code that is built on top or replace this specific code. We'll cover that in the hacking emacs section.
+
+Looking for a specific variable? describe-variable is here to help
+
+The describe-function and describe-variable commands are keys. They are you way in emacs code. If you had to remind only 2, that would be those.
+
+After that, there's some quite useful commands, like describe-key that let you lookup a function from a key binding, describe-theme, describe-mode, ....
+
+*** M-x apropos
+Another neat set of functions appear with the 'apropos' prefix.
+For example:
+- 'M-x apropos' can lookup functions satisfying a regex
+- 'M-x apropos-command' same but for commands
+
+*** M-x customize-xxx
+Theres also a lot of commands available with the 'customize-' prefix to customize pretty much everything you want
+
+* Emacs lisp
+** Getting started
+If you want to deep dive into emacs internal, you need to be familiar with emacs lisp. A great starting point is [[https://learnxinyminutes.com/docs/elisp/][this tutorial]].
+
+To get into deeper details about emacs lisp, you can find some usefull stuff in emacs bible (C-h r). At the top page level (press ^ as much as you need), you should see a '=Emacs LISP intro=' and a '=ELISP=' full documentation.
+
+** Hacking emacs
+*** The basics
+In this section, we'll do this simple exercice:
+#+BEGIN_QUOTE
+C-h r open the bible. However I can never remind what the shortcut is. Let's rebind it to something that make more sense like: C-h C-b (b for bible)
+#+END_QUOTE
+
+Yes to know how to remap some key, you can lookup on the internet but you won't learn anything if you do so. what's important here is the method:
+1) The first thing to do is finding the functions we should use
+2) Lookup their definitions
+3) Implement it
+
+A good starting point is as always the emacs bible where you can search for term such as 'key map' or 'key binding'. After looking at the results, you can even find concrete example:
+#+BEGIN_QUOTE
+   People often use ‘global-set-key’ in their init files (*note Init
+File::) for simple customization.  For example,
+
+     (global-set-key (kbd "C-x C-\\") 'next-line)
+#+END_QUOTE
+We see here 2 functions, a first one called kbd and another one called global-set-key. Put your cursor on kbd and use the 'describe-function' command to know more about it and repeat it again with 'global-set-key'. You nailed it, to complete the exercice, you have 2 ways to do it:
+1) the bad way: (global-set-key (kbd "C-h C-b") (kbd "C-c r"))
+2) a better way would be to lookup which function is bind to this
+   shortcut already. Use describe-key for that and you'll see it's called info-emacs-manual. So here it is: (global-set-key (kbd "C-h C-b") 'info-emacs-manual)
+
+*** Unleash the power
+**** Function advising
+Let's get deeper in our emacs quest by entering the [[https://www.gnu.org/software/emacs/manual/html_node/elisp/Advising-Functions.html][advise-add]] function. It's amazingly powerfull but I found the doc was doing a very poor job explaining it so here's how I would do it:
+
+Imagine you're Kim Jung Un, the newly self appointed eternal president of North Korea or as we call it: the Democratic People's Republic of Korea.
+Because you got the power, you decide that zero plus zero doesn't equal 0 but [[https://en.wikipedia.org/wiki/T%C3%AAte_%C3%A0_Toto]["Tête à Toto"]]
+
+In emacs lisp terms, =(+ 0 0)= shouldn't evaluate to =0= but to "Tête à Toto".
+
+You mean we can change how a core function behave? Yes and that's when functions advising comes in
+
+#+BEGIN_SRC
+;; default behavior before Kim decided to make the change:
+(+ 0 0) ;; => evaluate to 0  (press C-x C-e placing your cursor on the last parenthesis will execute the code)
+(funcall '+ 0 0) ;; same thing but written in a different way
+(apply '+ '(0 0)) ;; same thing but written in another way
+
+;; god function
+(defun kim-jong-un (old-func &rest arguments)
+  (if (equal arguments '(0 0)) "Tête à Toto" (apply old-func arguments)))
+
+(advice-add #'+ :around #'kim-jong-un)
+
+;; try again
+(+ 0 0) ;; => evaluate to "Tête à Toto" !
+(+ 0 1) ;; => evaluate to 1
+(describe-function '+) ;; => you should see our advice functions in the documentation! That's the emacs self documentation feature we were talking earlier!
+
+;; when kim realize all his software need to be rewrite to accommodate his new policy, he decided to change his mind and revert it back to how everyone else would do it:
+(advice-remove #'+ #'kim-jong-un)
+(+ 0 0) ;; => evaluate to 0
+(describe-function '+) ;; => our advice function just disappeared
+#+END_SRC
+
+This example is fairly stupid but the idea is you can do silly things that don't make any sense if you want, overriding core emacs function and changing how the entire software is behaving without having to recompile anything, it's all builtin.
+
+**** Exercice
+#+BEGIN_QUOTE
+Let's produce a report that will tell you how you spent time on emacs today.
+We're just interested in creating a log book that tells you:
+- when did you switch buffer
+- what is the name of the buffer you went in
+#+END_QUOTE
+
+There a number of actions we'll have to perform to achieve this:
+1) How do you switch buffer with emacs lisp? 'C-h C-s' switch buffer: we now know about the switch-to-buffer function, look at its definition and give it a try: =(switch-to-buffer "*File Logger*")=
+2) How to you know about the current buffer? 'C-h C-s' current buffer: we now know the current-buffer function can be use to findout about the current buffer: =(current-buffer)=
+3) How do you get the current time? 'C-h C-s' time: should tell you how to find the current time: (current-time-string)
+4) How would you put a string in a buffer? 'C-h C-s' buffer: You should get to know about =append-to-buffer= but looking at its definition it's a bit weird to use for our use case. Digging a bit more with apropos we should find out about those functions:
+   - =insert=
+   - =get-buffer-create=
+   - =with-current-buffer=
+
+So here is how we can do it:
+#+BEGIN_SRC
+(defun log-current-buffer ()
+  (let ((log-string (format "%s => %s \n" (current-time-string) (current-buffer)))
+        (log-buffer (get-buffer-create "*Logbook*")))
+        (with-current-buffer log-buffer (insert log-string))))
+
+(defun buffer-logger (func &rest args)
+  (let ((res (apply func args)))
+    (log-current-buffer)
+    res))
+
+(advice-add #'switch-to-buffer :around #'buffer-logger)
+#+END_SRC
+
+During development you have different choice on where to place your code:
+1) you can let you small piece of code somewhere and evaluate it function by function to give it a try. For creating this example, I wrote it directly from my org mode buffer ... If you put it in your emacs configuration it will evaluate directly when emacs boot up (but you probably don't want to go that road if you've read the [[./emacs-tutorial-series-episode-4.org][episode about plugins]])
+2) you can put it in another file and use the 'eval-buffer' command to evaluate it as you make some changes.
+
+**** Create a mode out of the exercice
+What's we'll try to achieve here is create a minor mode called 'logbook' out of our previous exercice. If you've follow the [[./emacs-tutorial-series-episode-4.org][previous episode]], you will likely push this new code in: '~/.emacs.d/plugins/logbook-mode/logbook-mode.el'.
+
+Emacs has a macro called 'define-minor-mode' that let you implement a minor mode which is exactly what we need here. Lookup at the definition and try by yourself first.
+
+This if what I came up with:
+#+BEGIN_SRC
+
+(defun log-current-buffer ()
+  "Log the context we're currently in"
+  (let ((log-string (format "%s => %s \n" (current-time-string) (current-buffer)))
+        (log-buffer (get-buffer-create "*Logbook*")))
+        (with-current-buffer log-buffer (insert log-string))))
+
+
+(defun buffer-logger (func &rest args)
+  "Advising function that is evaluate everytime we need to log something"
+  (let ((res (apply func args)))
+    (log-current-buffer)
+    res))
+
+(define-minor-mode logbook-mode
+  "Minor mode to log every time you change buffer"
+  :init-value nil
+  :lighter "log"
+  (if logbook-mode
+      (advice-add #'switch-to-buffer :around #'buffer-logger)
+      (advice-remove #'switch-to-buffer #'buffer-logger)))
+
+(provide 'logbook-mode)
+#+END_SRC
+
+Now our mode is ready, we can use it like any other, by adding stuff to emacs configuration.
+#+BEGIN_SRC
+(add-to-list 'load-path "~/.emacs.d/plugins/logbook-mode")
+
+(require 'logbook-mode)
+(logbook-mode t)
+
+;; or lazy load it:
+(autoload 'logbook-mode "logbook-mode" "logbook mode" t)
+;; and call it when you want:
+(add-hook 'c-mode-hook 'logbook-mode)
+;; or
+(global-set-key (kbd "C-c l") 'logbook-mode)
+#+END_SRC
+
+* Conclusion
+There's still a lot you can do but to I don't intend to rewrite emacs bible (C-h r). At least you can now find information directly within emacs and get your hands dirty to make it behave exactly as you want!

@@ -1,0 +1,108 @@
+#+TITLE: Emacs Tutorial Series - episode 3
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/45_search.jpg
+
+Look at a few interesting features that comes by default
+
+#+EXCERPT:
+
+
+* Ido
+Ido let you manage buffers conveniently:
+|----------+------------------------------------|
+| shortcut | effect                             |
+|----------+------------------------------------|
+| C-x b    | quickly switch buffer              |
+| C-x C-b  | display all currently open buffers |
+| C-x C-f  | find a file                        |
+|----------+------------------------------------|
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-ido.gif, size=720x571
+
+* Dired
+That's emacs file manager (dired stands for Directory Editor):
+- rename a file: =R=
+- copy a file: =C=
+- delete a file: =D= (press =x= to execute or =u= to unmark)
+- create a directory: =M-x create-directory=
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-dired.gif, size=720x487
+
+
+* a real terminal in emacs
+#+BEGIN_SRC
+M-x ansi-term
+#+END_SRC
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-ansi-term.gif, size=720x563
+
+Once you get this, you can literally stay in emacs for most of your needs.
+
+=Tips:= On window, I just couldn't make it work correctly. If you're force to use window or worse if you like it '=M-x shell=' is your friend.
+
+* Browse the web with EWW
+eww let you browse the web directly from emacs: '=M-x eww='. Yes it's not as fancy as the other browsers but still it does the job:
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-eww.png, size=720x578
+
+*Shortcuts*:
+- "r: move forward in the history
+- "l": move backward in history
+- "G": launch a query in your search engine
+
+=Tips:=
+- If you want to get in some fun stuff, it seems the latest version of emacs ships with a [[https://www.reddit.com/r/emacs/comments/4srze9/watching_youtube_inside_emacs_25/][webkit based browser]]. To enable it, you need to compile [[git://git.sv.gnu.org/emacs.git][emacs]] by yourself using the =with-xwidgets= flag.
+- If you ever come in a situation when battery life is precious but still need to use the web, eww is a life saver. It consumes much much less resources than all the other graphical browser out there. For example, at the time I'm writing those lines, my laptop is consuming 3.93W with the Wifi on and eww. If I open up chrome, it draws 1 additionnal watt.
+
+
+* SQL client
+Emacs can be use as an sql client for your database. It supports many type of database including: mysql, postgres, oracle and many others.
+Example for postgres: '=M-x sql-postgres='
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-db.png, size=720x577
+
+* Record and replay a serie of keyboard inputs in batch
+KBD macros is like having a keylogger recording what you are typing and being able to replay what you were doing in one shot.
+
+|-----------------+-------------------------------------|
+| Shortcut        | What it does                        |
+|-----------------+-------------------------------------|
+| C-x (           | Start recording                     |
+| C-x )           | Stop recording                      |
+| C-x C-e         | Replay the last record              |
+| C-u 100 C-x C-e | Replay the last recording 100 times |
+|-----------------+-------------------------------------|
+
+
+Macro is a great help when you need to reformat a piece of text. To give a concrete example, here is a demonstration to transform a copy and paste from a search in google to csv:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-kbd-macro.gif, size=720x405
+
+* Artist mode
+Artist mode is like Microsoft Paint but for drawing in ascii: '=M-x artist-mode='. It won't replace a proper drawing tool but if you're too lazy to install one, then artist mode is your friend.
+
+I already used it to draw UMLish diagrams and other things like wireframing but no it won't replace any dedicated tool.
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-artist.png, size=720x579
+
+* IRC
+Emacs has builtin support for IRC with '=M-x erc='
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-erc.png, size=720x576
+
+* Lisp
+Probably the coolest features. Emacs has full support for a lisp dialect called [[https://en.wikipedia.org/wiki/Emacs_Lisp][elisp]]. You can basically execute elisp code directly within emacs without needing anything else.
+
+For example, from a buffer you can type a expression like this one:
+=(+ 1 2)=
+and evaluate it with '=C-x C-e='
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-lisp.gif, size=720x408
+
+* Improbable builtin apps
+1) Wanna play tetris within emacs? '=M-x tetrix='
+2) Emacs psychotherapist? '=M-x doctor='
+
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-3-doctor.png, size=1000x663
+
+* What next?
+The [[./emacs-tutorial-series-episode-4.org][next episode]] will be about installing plugins

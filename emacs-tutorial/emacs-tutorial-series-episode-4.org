@@ -1,0 +1,522 @@
+#+TITLE: Emacs Tutorial Series - episode 4
+#+CATEGORY: pro
+#+IMAGE: /assets/thumbnails/emacs.jpg
+
+Emacs and its plugins
+
+#+EXCERPT:
+
+* Introduction
+Emacs has a great ecosystem of plugins. Whether you're doing web stuff, python or put the language you want here, you need tools and that's when emacs plugins becomes handy. Autocompletion, jump to defintion and other fancy features are some of the features you can expect for most of the programming languages using the plugin ecosystem.
+
+This post will be about tailoring emacs to make it behave more like an IDE tailored for your programming needs and install things that will make emacs even better
+
+* How do we install plugins
+There's 2 way to install things on emacs:
+1) rely on emacs package manager
+2) install things manually
+
+** Emacs package manager
+That's the generally accepted way to do it. To start installing packages with the package manager:
+#+BEGIN_SRC
+M-x package-refresh-contents
+M-x package-install => then tab to see all the available packages and select the one you want
+#+END_SRC
+
+=Tips:= If you're behind a proxy, open your configuration (if you're using the configuration given in [[./emacs-tutorial-series-episode-1.org][episode 1]]), uncomment the very first lines (F4 or M-x uncomment-region) and fill in your company proxy details:
+#+BEGIN_SRC
+;; SETUP YOUR PROXY IF NEEDED
+;; (setq url-proxy-services
+;;       '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+;;         ("http" . "company.com:8080")
+;;         ("https" . "company.com:8080")))
+#+END_SRC
+
+** Install things manually
+*** Why you would ever do that
+It's not the general way of doing things as most package advise you to go with the package manager but despite this, I usually install plugins by hand. Here is why:
+- I prefer to keep control over what to load, when and how. That way, I won't ever be one of those many people:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4.png, size=1000x534
+- I prefer to have a one line copy paste install approach that will also configure the plugin in the way I want and keep those separate so that I can quickly get rid of stuff and add more on the fly.
+- I always have issues with the package manager while I'm at work behind our very restrictive company proxy. Yes it happens, my company even put a warning message when I downloaded emacs saying this software could be dangerous (no joke).
+*** How to do it
+Installing a plugin by hand usually boils down to:
+1) get the code of your plugin and extract it somewhere
+2) If needed, get any dependency code and extract it somewhere
+3) setup the plugin so that you can actually use it.
+
+Installing a plugin usually end up following those steps:
+- make emacs know where to lookup for the plugin and its dependencies:
+#+BEGIN_SRC
+(add-to-list 'load-path "~/.emacs.d/plugins/my-great-plugin")
+#+END_SRC
+- load the plugin so that you can use it. There's 2 approach to load it:
+#+BEGIN_SRC
+# approach 1: instantiate the plugin right away
+(require 'my-super-plugin)
+# approach 2: lazy load plugin instantiation
+(autoload 'my-super-plugin "my-super-plugin" "super login mode" t)
+#+END_SRC
+
+*** Avoid the slow booting curse
+**** The thumb rule
+There's way too many horror stories where people claim to have emacs booting up in 30s (I even saw someone who were claiming an amazing 30 minutes!).
+It won't happen to you if you follow this simple rule of thumb:
+Is your plugin absolutely necessary when emacs starts?
+=> yes: use require
+=> no: use lazyloading
+
+If you use require, you pay the plugins loading time upfront when emacs boots up. With lazy loading, you only pay for it when you need it. It might seem obvious but it's very easy to endup with a bloated configuration. Personally my emacs typical booting time is 0.6 second ('M-x emacs-init-time'). Still I got quite a lot of stuff in there. How I do it is simple, everytime I download something, I just apply the rule of thumb above.
+
+**** Lazy loading
+If I found out I can lazy load something I just do it like this:
+#+BEGIN_SRC
+(autoload 'cool-plugin-for-org-mode "cool-plugin-for-org-mode" "cool plugin for org mode" t)
+(add-hook 'org-mode-hook 'cool-plugin-for-org-mode)
+#+END_SRC
+Essentially, it means that when org mode is loaded, my plugin is getting load and I pay for its loading cost only when I need it.
+
+There's another class of plugin that you would want to use only when you press certain keys (think like project navigation, a git client, multiple cursors or any plugins not related to what your actual major mode is):
+#+BEGIN_SRC
+(autoload 'cool-mode "cool-mode" "cool mode" t)
+(global-set-key (kbd "C-c C-z") 'cool-mode)
+#+END_SRC
+
+** How do I structure my emacs
+To keep things separate, my emacs configuration is separate from the plugin configuration. Basically the .emacs.d has this structure:
+#+BEGIN_SRC
+.emacs.d
+|- init.el
+|- conf
+   |- conf_1.el (configuration something very specific)
+   |- conf_2.el (configuration for a plugin)
+   |- ...
+|- plugins
+   |- deps (contains all dependencies used by all plugins)
+   |- plugin 1 (source code of plugin 1)
+   |- plugin 2 (source code of plugin 2)
+   |- ...
+#+END_SRC
+
+You might be worry that all dependencies are shared among all plugins (especially if you have some background in [[https://www.theregister.co.uk/2016/03/23/npm_left_pad_chaos/][node]]) but I never had any issues with this structure. Maybe not having dependencies which called hundreds of dependencies which also have their own set of dependencies isn't what you'll typically see with emacs.
+
+* Assumptions
+If you don't want to start with the configuration given in [[./emacs-tutorial-series-episode-1.org][episode 1]] but want to keep going with this series of posts, you'll have to at least execute those commands:
+#+BEGIN_SRC bash
+mkdir -p ~/.emacs.d/plugins/dep ~/.emacs.d/conf
+# replace init.el by what your actual emacs configuration file if needed
+cat > ~/.emacs.d/init.el <<EOF
+(mapc
+ (lambda(path) (load-file path))
+ (directory-files "~/.emacs.d/conf/" t "\.el$"))
+EOF
+#+END_SRC
+
+What this does is:
+1) create a folder to store all your plugins and their dependencies.
+2) create a configuration folder called 'conf' where you can drag and drop all your plugin related configuration or anything else that you think isn't related to your core emacs conf. You'll end up with a clear separation between the configuration of plugins and emacs core config.
+
+* Plugins I use
+** Git client: Magit
+We'll assume you're using git for version control. Magit is the best solution in the emacs ecosystem to manage your git repository directly from emacs:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-magit.png, size=1962x1250
+
+To install:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ ~/.emacs.d/plugins/deps && cd ~/.emacs.d/plugins/
+git clone -b '2.10.3' --single-branch --depth 1 https://github.com/magit/magit
+cd ./deps
+git clone -b '2.13.0' --single-branch --depth 1 https://github.com/magnars/dash.el
+git clone -b 'v2.5.10' --single-branch --depth 1 https://github.com/magit/with-editor
+cd ~/.emacs.d/plugins/magit
+
+cat > config.mk <<EOF
+LOAD_PATH = -L ~/.emacs.d/plugins/deps/dash.el
+LOAD_PATH += -L ~/.emacs.d/plugins/deps/with-editor
+LOAD_PATH += -L ~/.emacs.d/plugins/magit/lisp
+EOF
+make
+
+cat > ~/.emacs.d/conf/magit.el <<EOF
+;; begin(magit)
+(autoload 'magit-status "magit" "Magit mode" t)
+(add-to-list 'load-path "~/.emacs.d/plugins/magit/lisp")
+(add-to-list 'load-path "~/.emacs.d/plugins/deps/dash.el")
+(add-to-list 'load-path "~/.emacs.d/plugins/deps/with-editor")
+(global-set-key (kbd "C-c g") 'magit-status)
+;; end(magit)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/magit/magit][the repo]]
+
+** Undo/redo done right: Undo tree
+On our everydays regular applications, undo redo is linear but it shouldn't be. The actual change flow comes to navigate in a tree of change. That's what undo tree is all about:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-undo-tree.png, size=1000x914
+
+Installation:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins/
+git clone --single-branch --depth 1 https://github.com/emacsmirror/undo-tree
+
+cat > ~/.emacs.d/conf/undo-tree.el <<EOF
+;; begin(undo-tree)
+(add-to-list 'load-path "~/.emacs.d/plugins/undo-tree")
+(global-set-key (kbd "C-c C-z") 'undo-tree-visualize)
+(autoload 'undo-tree-visualize "undo-tree" "undo-tree mode" t)
+;; end(undo-tree)
+EOF
+#+END_SRC
+you now have fine control of the undo/redo operation with =C-c z=
+
+Reference: [[https://github.com/emacsmirror/undo-tree][the repo]]
+
+** Project navigation: Projectile
+Porjectile makes it easy to navigate in a project:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-projectile.png, size=1958x1256
+
+Installation:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins/
+git clone -b 'v0.14.0' --single-branch --depth 1 https://github.com/bbatsov/projectile
+
+cat > ~/.emacs.d/conf/projectile.el <<EOF
+;; begin(projectile)
+(add-to-list 'load-path "~/.emacs.d/plugins/projectile")
+(autoload 'projectile-find-file "projectile" "Projectile mode" t)
+(autoload 'projectile-grep "projectile" "Projectile mode" t)
+(setq projectile-indexing-method 'alien)
+(global-unset-key (kbd "C-c C-f"))
+(global-unset-key (kbd "C-c C-g"))
+(global-set-key (kbd "C-c C-f") 'projectile-find-file)
+(global-set-key (kbd "C-c C-g") 'projectile-grep)
+;; end(projectile)
+EOF
+#+END_SRC
+
+If you're inside a project, it can be pretty boring to open a file with the typical =C-x C-f=. Introducing =C-c C-f= to find a file in your project more efficiently and =C-c C-g= to find files based on a string in this file.
+
+Reference: [[https://github.com/bbatsov/projectile][the repo]]
+
+** Programming environment I have used in emacs
+*** Clojure: Cider
+Reference: [[https://github.com/clojure-emacs/cider][the repo]]
+
+*** PHP
+Reference: [[https://github.com/ejmr/php-mode][the repo]]
+#+BEGIN_COMMENT
+(add-to-list 'load-path "~/.emacs.d/lisp/plugins/php-mode")
+(autoload 'php-mode "php-mode" "Major mode for editing php code." t)
+#+END_COMMENT
+*** Golang
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ ~/.emacs.d/plugins/deps && cd ~/.emacs.d/plugins
+git clone -b 'v1.5.0' --single-branch --depth 1 https://github.com/dominikh/go-mode.el
+git clone --depth 1 https://github.com/emacsmirror/company-go
+
+cat > ~/.emacs.d/conf/golang.el <<EOF
+;; begin(go-env)
+;; Assumption:
+;; - gocode is installed => `go get github.com/nsf/gocode` and mv this to /usr/local/bin/
+;; - godef is installed  => `go get github.com/rogpeppe/godef` and mv this to /usr/local/bin
+(setenv "GOPATH" "/Users/mickael/Documents/projects/go")
+;;(getenv "GOPATH")
+(add-to-list 'load-path "~/.emacs.d/plugins/company-go")
+(add-to-list 'load-path "~/.emacs.d/plugins/go-mode.el")
+(autoload 'go-mode "go-mode" nil t)
+(add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode))
+
+(defun go-mode-loader ()  
+  (require 'company)
+  (require 'company-go)
+  (local-set-key (kbd "M-.") 'godef-jump)
+  (set (make-local-variable 'company-backends) '(company-go))
+  (company-mode)
+  (add-hook 'before-save-hook 'gofmt-before-save))
+
+(add-hook 'go-mode-hook 'go-mode-loader)
+;; end(go-env)
+EOF
+#+END_SRC
+*** Elixir
+
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ ~/.emacs.d/plugins/deps && cd ~/.emacs.d/plugins/
+git clone -b 'v1.8.1' --single-branch --depth 1 https://github.com/tonini/alchemist.el
+git clone -b 'v2.3.1' --single-branch --depth 1 https://github.com/elixir-lang/emacs-elixir
+cd deps/
+git clone -b '0.6' --single-branch --depth 1 https://github.com/lunaryorn/pkg-info.el
+git clone -b '0.8' --single-branch --depth 1 https://github.com/cask/epl
+
+cat > ~/.emacs.d/conf/elixir.el <<EOF
+;; begin(elixir)
+(add-to-list 'load-path "~/.emacs.d/plugins/alchemist.el")
+(add-to-list 'load-path "~/.emacs.d/plugins/emacs-elixir")
+(add-to-list 'load-path "~/.emacs.d/plugins/deps/pkg-info.el")
+(add-to-list 'load-path "~/.emacs.d/plugins/deps/epl")
+(autoload 'alchemist "alchemist" "alchemist mode" t)
+(add-to-list 'auto-mode-alist '("\.ex$" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\.exs$" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\.html$" . html-mode))
+;; end(elixir)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/tonini/alchemist.el][the repo]]
+
+*** Other Web stuff
+#+BEGIN_SRC bash
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins/
+git clone -b 'v15' --single-branch --depth 1 https://github.com/fxbois/web-mode
+
+cat > ~/.emacs.d/conf/web-mode.el <<EOF
+;; begin(web-mode)
+(add-to-list 'load-path "~/.emacs.d/plugins/web-mode")
+(autoload 'web-mode "web-mode" "Web mode" t)
+(add-to-list 'auto-mode-alist '("\.scss$" . css-mode))
+(add-to-list 'auto-mode-alist '("\.less$" . css-mode))
+(add-hook 'html-mode-hook 'web-mode)
+;; end(web-mode)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/fxbois/web-mode][the repo]]
+
+*** Edit Markdown: Markdown mode
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins/
+git clone -b 'v2.1' --single-branch --depth 1 https://github.com/jrblevin/markdown-mode
+
+cat > ~/.emacs.d/conf/markdown-mode.el <<EOF
+;; begin(markdown-mode)
+(autoload 'markdown-mode "markdown-mode" "Markdown mode" t)
+(add-to-list 'load-path "~/.emacs.d/plugins/markdown-mode")
+(add-to-list 'auto-mode-alist '("\.markdown$" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\.md$" . markdown-mode))
+(add-hook 'text-mode-hook 'flyspell-mode)
+;; end(markdown-mode)
+EOF
+#+END_SRC
+
+Reference: [[http://jblevins.org/projects/markdown-mode/][the repo]]
+
+** Autocomplete
+*** Autocomplete: Company mode
+Company mode is a completion framework for emacs. It ships with different backend that let you autocomplete on different things by default.
+Of course you can extend it to work with the language you want, at least if you succeed to make it work.
+
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ ~/.emacs.d/plugins/deps && cd ~/.emacs.d/plugins
+git clone -b '0.9.2' --single-branch --depth 1 https://github.com/company-mode/company-mode
+
+cat > ~/.emacs.d/conf/company-mode.el <<EOF
+;; begin(company-mode)
+(add-to-list 'load-path "~/.emacs.d/plugins/company-mode")
+(autoload 'global-company-mode "company" "Company mode" t)
+(add-hook 'after-init-hook 'global-company-mode)
+;; end(company-mode)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/company-mode/company-mode][the repo]]
+
+*** Javascript: Tern
+Tern is a great autocompletion for js
+
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ ~/.emacs.d/plugins/deps && cd ~/.emacs.d/plugins
+git clone -b '0.12.0' --single-branch --depth 1 https://github.com/ternjs/tern/
+cd tern && npm install
+cd ~/.emacs.d/plugins/deps
+git clone -b 'v0.3.0' --single-branch https://github.com/proofit404/company-tern
+
+cat > ~/.emacs.d/conf/tern.el <<EOF
+;; begin(tern)
+(defun load-tern ()
+  (setenv "PATH" (concat "/usr/local/bin:" (getenv "PATH")))
+  (add-to-list 'load-path "~/.emacs.d/plugins/tern/emacs")
+  (add-to-list 'load-path "~/.emacs.d/plugins/deps/popup-el")
+  (add-to-list 'load-path "~/.emacs.d/plugins/deps/auto-complete")
+  (autoload 'tern-mode "tern.el" nil t)
+  (setq company-tern-property-marker nil)
+  (add-to-list 'company-backends 'company-tern)
+  (add-hook 'js-mode-hook (lambda () (tern-mode t))))
+(add-hook 'after-init-hook 'load-tern)
+;; end(tern)
+EOF
+
+cat > ~/.tern-config <<EOF
+{
+    "plugins": {
+        "node": {},
+        "es_modules": {}
+    },
+    "libs": [
+        "ecma5",
+        "ecma6"
+    ],
+    "ecmaVersion": 6
+}
+EOF
+#+END_SRC
+
+Note, there's a autocomple plugin for tern too but I couldn't make it work so I went with autocomplete instead.
+
+Reference: [[https://github.com/ternjs/tern][the repo]]
+
+
+** Email: wanderlust
+
+An email client for emacs:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-wl.png, size=1000x543
+
+Emacs comes with a builtin mode for email called gnus but I have found wanderlust to do better job at it.
+Because the proxy won't let me use email at work, i use the package manager to install wanderlust
+#+BEGIN_SRC emacs-lisp
+M-x package-refresh-contents
+M-x package-install wanderlust
+#+END_SRC
+Setup:
+#+BEGIN_SRC
+cat > ~/.folders <<EOF
+# -*- conf-unix -*-
+GMAIL{
+  %INBOX:"mickael.kerjean"/clear@imap.gmail.com:993!    "In"
+  %[Gmail]/Sent Mail:"mickael.kerjean"/clear@imap.gmail.com:993!        "Sent"
+}
+PERSO{
+  %INBOX:"mickael@kerjean.me"@SSL0.OVH.NET              "In"
+}
+EOF
+ cat > ~/.wl <<EOF
+;; SMTP
+(setq wl-smtp-connection-type 'starttls)
+(setq wl-smtp-posting-port 587)
+(setq wl-smtp-authenticate-type "plain")
+(setq wl-smtp-posting-user "mickael@kerjean.me")
+(setq wl-smtp-posting-server "SSL0.OVH.NET")
+(setq wl-local-domain "kerjean.me")
+(setq wl-from "mickael@kerjean.me")
+ ;; conf
+(setq wl-folder-check-async t)
+(setq elmo-imap4-use-modified-utf7 t)
+(autoload 'wl-user-agent-compose "wl-draft" nil t)
+(if (boundp 'mail-user-agent)
+  (setq mail-user-agent 'wl-user-agent))
+  (if (fboundp 'define-mail-user-agent)
+  (define-mail-user-agent
+    'wl-user-agent
+    'wl-user-agent-compose
+    'wl-draft-send
+    'wl-draft-kill
+    'mail-send-hook))
+(autoload 'wl "wl" "Wanderlust" t)
+(autoload 'wl-other-frame "wl" "Wanderlust on new frame." t)
+(autoload 'wl-draft "wl-draft" "Write draft with Wanderlust." t)
+(add-hook 'wl-init-hook (lambda () (linum-mode nil)))
+EOF
+#+END_SRC
+
+- Key links: https://www.emacswiki.org/emacs/WanderLust, http://www.gohome.org/wl/doc/wl_35.html
+- Trick: Once you have entered in wl, it should ask all your
+  password. If you're too lazy to retype then everytime you connect:
+  =M-x elmo-passwd-alist-save= will save those and reuse them. It will store those in '~/.elmo/passwd'
+
+Reference: [[https://github.com/wanderlust/wanderlust][the repo]]
+
+** Other Stuff I like
+
+*** Smooth scroll
+The default scroll in emacs feels weird to me. Let's fix this:
+ #+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins
+git clone -b 'v2.0.0' --depth 1 --single-branch https://github.com/aspiers/smooth-scrolling
+
+cat > ~/.emacs.d/conf/smooth-scroll.el <<EOF
+;; begin(smooth-scroll)
+(add-to-list 'load-path "~/.emacs.d/plugins/smooth-scrolling")
+(require 'smooth-scrolling)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ;; one line at a time
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1)
+;; end(smooth-scroll)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/aspiers/smooth-scrolling][the repo]]
+
+*** Window centered mode
+To makes your text centered instead of being stuck on the left side of your window
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-window-centered-mode.gif, size=720x496
+
+Install:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins/
+git clone --depth 1 https://github.com/anler/centered-window-mode
+cd ./deps
+git clone -b '1.11.0' --depth 1 --single-branch https://github.com/magnars/s.el
+
+cat > ~/.emacs.d/conf/window-centered-mode.el <<EOF
+;; begin(window-centered-mode)
+(add-to-list 'load-path "~/.emacs.d/plugins/centered-window-mode")
+(add-to-list 'load-path "~/.emacs.d/plugins/deps/s.el")
+(require 'centered-window-mode)
+(centered-window-mode t)
+;; end(window-centered-mode)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/anler/centered-window-mode][the repo]]
+
+*** Ace Jump
+
+To quickly jump your cursor to some other position, ace jump is pretty nice:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-ace-jump.gif, size=720x500
+
+Install:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins
+git clone -b 'v2.0' --single-branch --depth 1 https://github.com/winterTTr/ace-jump-mode
+cat > ~/.emacs.d/conf/ace-jump.el <<EOF
+;; begin(ace-jump)
+(add-to-list 'load-path "~/.emacs.d/plugins/ace-jump-mode")
+(autoload 'ace-jump-mode "ace-jump-mode" "ace jump mode" t)
+(define-key global-map (kbd "C-c C-SPC") 'ace-jump-mode)
+;; end(ace-jump)
+EOF
+#+END_SRC
+
+=C-c C-SPC= and type the first letter of the location you're trying to go and let you guide!
+
+Reference: [[https://github.com/winterTTr/ace-jump-mode][the repo]]
+
+*** Powerline
+
+Just to make the status bar looks a bit more fancy:
+#+AMP_IMG: ./img/emacs-tutorial-series-episode-4-powerline.png, size=712x188
+
+Install:
+#+BEGIN_SRC
+mkdir -p ~/.emacs.d/plugins/ && cd ~/.emacs.d/plugins
+git clone -b '2.4' --depth 1 --single-branch https://github.com/milkypostman/powerline
+cat > ~/.emacs.d/conf/powerline.el <<EOF
+;; begin(powerline)
+(add-to-list 'load-path "~/.emacs.d/plugins/powerline")
+(require 'powerline)
+(powerline-default-theme)
+;; end(powerline)
+EOF
+#+END_SRC
+
+Reference: [[https://github.com/milkypostman/powerline][the repo]]
+
+*** Mutliple cursors
+Some other features some people like [[https://github.com/magnars/multiple-cursors.el][multiple-cursor]]
+*** Get tabs in emacs Tabbar
+I don't use it anymore as I much prefer projectile and change buffer directly but if you can't live without tabs, checkout [[https://github.com/dholm/tabbar][tabbar]]
+
+
+* What next?
+Be aware that's there's a lot of other emacs plugins in the market (one of the missing but very well known is [[https://github.com/emacs-helm/helm][helm]] but because I don't use it doesn't mean it isn't worth looking into it).
+
+This was the fourth episode of this emacs tutorial series and we're already approaching the end. Until now we've been a typical user of emacs without really digging inside emacs internals which is the topic of [[./emacs-tutorial-series-episode-5.org][the last episode]].
